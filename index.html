@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <!-- Ensure proper scaling on mobile devices -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ricky Plaza the surfer!</title>
+  <title>Brooke Mason the surfer!</title>
   <style>
     /* GENERAL STYLES */
     body {
@@ -42,7 +42,7 @@
       flex-direction: column;
       align-items: flex-start;
     }
-    /* Reset container holds only the Reset Game button (arrow removed from here) */
+    /* Reset container holds only the Reset Game button */
     #resetContainer {
       display: inline-flex;
       align-items: center;
@@ -107,7 +107,7 @@
   </style>
 </head>
 <body>
-  <h1>Ricky Plaza the surfer!</h1>
+  <h1>Brooke Mason the surfer!</h1>
   <canvas id="gameCanvas"></canvas>
   
   <!-- Free game offer message (threshold updated to 30) -->
@@ -193,16 +193,20 @@
     let food = randomFoodPosition();
     
     /***********************
-     * IMAGE FOR SNAKE HEAD *
+     * IMAGE ASSETS *
      ***********************/
-    // Create an image object for the snake head.
+    // Snake head image (now using "snakeheadbrooke.png")
     const snakeHeadImg = new Image();
-    snakeHeadImg.src = "snakehead.png"; // Make sure snakehead.png is in the same folder as index.html.
+    snakeHeadImg.src = "snakeheadbrooke.png"; // Ensure this file is in the same folder as index.html.
+    
+    // Food image (coconut) replacing the previous surfboard ASCII art.
+    const coconutImg = new Image();
+    coconutImg.src = "coconut.png"; // Ensure coconut.png is in the same folder as index.html.
     
     /***********************
-     * ASCII ART DEFINITIONS *
+     * (Optional) ASCII ART DEFINITIONS *
      ***********************/
-    // (Optional: You can keep these for drawing food using ASCII.)
+    // You can keep these definitions if you want to fall back for other elements.
     const surferArt = [
       "  \\o/  ",
       "   |   ",
@@ -315,15 +319,14 @@
       
       let foodCenterX = food.x * cellSize + cellSize / 2;
       let foodCenterY = food.y * cellSize + cellSize / 2;
-      let foodWidth  = 1.8 * artFontSize;
-      let foodHeight = 3 * artFontSize;
-      let foodLeft   = foodCenterX - foodWidth / 2;
-      let foodRight  = foodCenterX + foodWidth / 2;
-      let foodTop    = foodCenterY - foodHeight / 2;
-      let foodBottom = foodCenterY + foodHeight / 2;
+      // We no longer use ASCII art for food—now we use the coconut image.
       
-      if (snakeRight > foodLeft && snakeLeft < foodRight &&
-          snakeBottom > foodTop && snakeTop < foodBottom) {
+      if (
+        snakeRight > (foodCenterX - cellSize/2) &&
+        snakeLeft < (foodCenterX + cellSize/2) &&
+        snakeBottom > (foodCenterY - cellSize/2) &&
+        snakeTop < (foodCenterY + cellSize/2)
+      ) {
         // Food is eaten.
         score++;
         document.getElementById('score').innerText = "Score: " + score;
@@ -360,17 +363,24 @@
       ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       
-      // Draw food (surfboard) using ASCII art.
+      // Draw food using the coconut image.
       let foodCenterX = food.x * cellSize + cellSize / 2;
       let foodCenterY = food.y * cellSize + cellSize / 2;
-      drawArt(surfboardArt, foodCenterX, foodCenterY, artFontSize, "#0f0", "Surfboard");
+      if (coconutImg.complete) {
+        // Draw the coconut image scaled to one cell.
+        ctx.drawImage(coconutImg, foodCenterX - cellSize/2, foodCenterY - cellSize/2, cellSize, cellSize);
+      } else {
+        ctx.font = artFontSize + "px monospace";
+        ctx.fillStyle = "#0f0";
+        ctx.fillText("Loading coconut...", foodCenterX, foodCenterY);
+      }
       
       // Draw the snake.
       snake.forEach((segment, index) => {
         let centerX = segment.x * cellSize + cellSize / 2;
         let centerY = segment.y * cellSize + cellSize / 2;
         if (index === 0) {
-          // Draw the snake head using the PNG image at 3x the cell size.
+          // Draw the snake head using the PNG image at 3× the cell size.
           if (snakeHeadImg.complete) {
             const factor = 3;
             ctx.drawImage(
